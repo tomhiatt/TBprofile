@@ -1,30 +1,62 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
+###########################
+# USER INTERFACE
+# Tom Hiatt
+# MDR-TB tab of TB profile
+# Updated: 26 Sep 2014
+###########################
 
 library(shiny)
+
+options(stringsAsFactors=FALSE)
+
+load("dta.Rdata")
+dtao <- subset(dta, year==max(dta$year), c(admin0, admin1, admin2, admin2code))
+dtan <- rbind(data.frame(admin2=unique(dtao$admin0), 
+                         admin2code=unique(dtao$admin0)), 
+              data.frame(admin2=sort(unique(dtao$admin1)), 
+                         admin2code=sort(unique(dtao$admin1))), 
+              dtao[c("admin2", "admin2code")])
+# Encoding(dtan$admin2) <- "latin1"
+ls.code <- as.list(dtan$admin2code)
+names(ls.code) <- sapply(ls.code, function(x) dtan[dtan$admin2code==x,"admin2"])
+ls.admin2 <- as.list(dtan$admin2)
+names(ls.admin2) <- sapply(ls.admin2, function(x) dtan[dtan$admin2==x,"admin2code"])
 
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("TB dashboard"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
-    sidebarPanel(
-      sliderInput("bins",
-                  "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
+    sidebarPanel(      
+      selectizeInput("a2select", "Select one or more areas:", ls.code, selected=ls.code[7], width="400px", multiple=TRUE),
+      br(),
+      h5("Use your own data", title="1. Click the <<Save Data>> button below to download the dataset as a .csv file. 2. Replace everything below the header row with your own data. 3. Save the file in .csv format. 4. Click <<Choose File>> and Upload your file."),
+      p("Download"), 
+      
+      downloadButton("template", "Template"),
+      br(),
+      br(),
+      
+      fileInput("filled.template", "Upload"),
+      br(),
+      
+      "Data source: ", a("WHO", href="http://www.who.int/tb/data", title="World Health Organization"),
+      
+      
+#       radioButtons("source", "Which file would you like to use?", choices = list(`Original data`="orig", `Uploaded data`="uploaded")),
+      br(),
+      br()
+      
     ),
 
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("distPlot")
+#       plotOutput("distPlot"),
+#       textOutput("check"),
+      plotOutput("profileplots", width = "auto", height = "800px")
+#       tableOutput("check2")
     )
   )
 ))

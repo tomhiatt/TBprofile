@@ -7,7 +7,7 @@
 
 # setwd("D:/Users/hiattt/Dropbox/Code/Shiny/TBprofile")
 
-library(shiny)
+# library(shiny)
 library(dplyr)
 library(ggplot2)
 library(reshape)
@@ -28,30 +28,30 @@ rowSumsNA <- function(x,...) {
   rowMeans(x, na.rm=TRUE) * rowSums(!is.na(x))
 }
 
-## Function for arranging ggplots. use png(); arrange(p1, p2, ncol=1); dev.off() to save. From Here: http://gettinggeneticsdone.blogspot.com/2010/03/arrange-multiple-ggplot2-plots-in-same.html
-require(grid)
-vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
-arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
-  dots <- list(...)
-  n <- length(dots)
-  if(is.null(nrow) & is.null(ncol)) { nrow = floor(n/2) ; ncol = ceiling(n/nrow)}
-  if(is.null(nrow)) { nrow = ceiling(n/ncol)}
-  if(is.null(ncol)) { ncol = ceiling(n/nrow)}
-  ## NOTE see n2mfrow in grDevices for possible alternative
-  grid.newpage()
-  pushViewport(viewport(layout=grid.layout(nrow,ncol) ) )
-  ii.p <- 1
-  for(ii.row in seq(1, nrow)){
-    ii.table.row <- ii.row	
-    if(as.table) {ii.table.row <- nrow - ii.table.row + 1}
-    for(ii.col in seq(1, ncol)){
-      ii.table <- ii.p
-      if(ii.p > n) break
-      print(dots[[ii.table]], vp=vp.layout(ii.table.row, ii.col))
-      ii.p <- ii.p + 1
-    }
-  }
-}
+# ## Function for arranging ggplots. use png(); arrange(p1, p2, ncol=1); dev.off() to save. From Here: http://gettinggeneticsdone.blogspot.com/2010/03/arrange-multiple-ggplot2-plots-in-same.html
+# require(grid)
+# vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
+# arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
+#   dots <- list(...)
+#   n <- length(dots)
+#   if(is.null(nrow) & is.null(ncol)) { nrow = floor(n/2) ; ncol = ceiling(n/nrow)}
+#   if(is.null(nrow)) { nrow = ceiling(n/ncol)}
+#   if(is.null(ncol)) { ncol = ceiling(n/nrow)}
+#   ## NOTE see n2mfrow in grDevices for possible alternative
+#   grid.newpage()
+#   pushViewport(viewport(layout=grid.layout(nrow,ncol) ) )
+#   ii.p <- 1
+#   for(ii.row in seq(1, nrow)){
+#     ii.table.row <- ii.row	
+#     if(as.table) {ii.table.row <- nrow - ii.table.row + 1}
+#     for(ii.col in seq(1, ncol)){
+#       ii.table <- ii.p
+#       if(ii.p > n) break
+#       print(dots[[ii.table]], vp=vp.layout(ii.table.row, ii.col))
+#       ii.p <- ii.p + 1
+#     }
+#   }
+# }
 
 
 # Theme for plots
@@ -101,7 +101,7 @@ if(FALSE){
   names(dta)[1:num.idvars] <- c("admin2", "admin2code", "admin1", "year")
   save(dta, num.idvars, file="dta.Rdata")
   
-  input <- data.frame(a2select=c("KOR", "CHN"))
+  input <- data.frame(a2select=c("ZAF"))
   load("dta.Rdata")
   dta1 <- dta
 }
@@ -109,9 +109,9 @@ if(FALSE){
 load("dta.Rdata")
 
 template <- dta
-template[(num.idvars+1):ncol(dta)] <- NA
+# template[(num.idvars+1):ncol(dta)] <- NA
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   
   output$template <- downloadHandler(
     filename = function() "template.csv",
@@ -129,10 +129,67 @@ shinyServer(function(input, output) {
     df.raw <- read.csv(inFile$datapath, header=TRUE)
     
     #     if(identical(names(dta), names(df.raw))) return(df.raw)
-    #       else(warning("Uploaded template does not match. Please make sure the first row is identical to the template and try again."))   
+    #       else(warning("Uploaded template does not match. Please make sure the first row is identical to the template and try again.")) 
+    
+    # ALSO NEED TO CONVERT COLUMNS IN UPLOADED TO THE RIGHT CLASS
   })
   
+##### 
+#   dtao <- dta1() %>%
+#     filter(year==2013) %>%
+#     select(admin0, admin1, admin2, admin2code)
+#   dtan <- rbind(data.frame(admin2=unique(dtao$admin0), 
+#                            admin2code=unique(dtao$admin0)), 
+#                 data.frame(admin2=sort(unique(dtao$admin1)), 
+#                            admin2code=sort(unique(dtao$admin1))), 
+#                 dtao[c("admin2", "admin2code")])
+#   Encoding(dtan$admin2) <- "latin1"
+#   ls.code <- as.list(dtan$admin2code)
+#   names(ls.code) <- sapply(ls.code, function(x) dtan[dtan$admin2code==x,"admin2"])
+#   ls.admin2 <- as.list(dtan$admin2)
+#   names(ls.admin2) <- sapply(ls.admin2, function(x) dtan[dtan$admin2==x,"admin2code"])
   
+#   observe({
+#     # This will change the value of input$partnerName to searchResult()[,1]
+#     updateSelectizeInput(session, "a2select", "Select one or more areas:", ls.code, selected=ls.code[6], width="400px", multiple=TRUE)
+#                          
+# #       "partnerName", 
+# #                     label = "Select your choice", 
+# #                     value = searchResult()[,1])
+#   })
+##### 
+observe({
+
+
+dtao <- dta1() %>% # dtao <- dta1 %>%
+  filter(year==max(year)) %>%
+  select(admin0, admin1, admin2, admin2code)
+
+#   subset(dta, year==max(dta$year), c(admin0, admin1, admin2, admin2code))
+dtan <- rbind(data.frame(admin2=unique(dtao$admin0), 
+                         admin2code=unique(dtao$admin0)), 
+              data.frame(admin2=sort(unique(dtao$admin1)), 
+                         admin2code=sort(unique(dtao$admin1))), 
+              dtao[c("admin2", "admin2code")])
+Encoding(dtan$admin2) <- "latin1"
+ls.code <- as.list(dtan$admin2code)
+names(ls.code) <- sapply(ls.code, function(x) dtan[dtan$admin2code==x,"admin2"])
+ls.admin2 <- as.list(dtan$admin2)
+names(ls.admin2) <- sapply(ls.admin2, function(x) dtan[dtan$admin2==x,"admin2code"])
+
+  
+  output$areaSelect <- renderUI({
+    selectInput(inputId = "a2select", 
+                label = "Select areas to combine:", 
+                choices = ls.code, 
+                selected=ls.code[7], 
+                width="400px", 
+                multiple=TRUE)
+    
+  })
+})
+
+
   
   output$profileplots <- renderPlot({
 #         par( mfrow =c(2,2)) # mar=c(3,4,4,2)+0.2, , cex=1.1, oma=c(1,1,2,1)
@@ -168,11 +225,7 @@ shinyServer(function(input, output) {
       
       melt(id=1) %>%
       
-      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer(type="qual", palette=6, breaks=c("dstx_pct", "mdrr_pct"), labels=c(expression("% DST among pulmonary cases"^a), "% MDR-TB or RR-TB among tested")) + scale_x_continuous("") + scale_y_continuous("Percent")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle(
-        "Trend of drug-resistance
-coverage and positivity of 
-MDR-TB and RR-TB amongst 
-retreatment patients, 2007–2013")
+      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer(type="qual", palette=6, breaks=c("dstx_pct", "mdrr_pct"), labels=c(expression("% DST among pulmonary cases"^a), "% MDR-TB or RR-TB among tested")) + scale_x_continuous("") + scale_y_continuous("Percent")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle("DST coverage and MDR-TB positivity")
     #     + geom_text(aes(label=variable), subset(dta2, year==2013), hjust=1.25, vjust=0.3, size=4)
     
     # f.alignment ------------------------------------------------------
@@ -197,7 +250,7 @@ retreatment patients, 2007–2013")
       
       melt(id=1) %>%
       
-      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer("", type="qual", palette=6) + scale_x_continuous("") + scale_y_continuous("MDR-TB cases")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle("\nTrend of notification and \nenrolment of MDR-TB cases, \n2006–2011")
+      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer("", type="qual", palette=6) + scale_x_continuous("") + scale_y_continuous("MDR-TB cases")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle("Notification and enrolment")
     #     + geom_text(aes(label=variable), subset(dta2, year==2013), hjust=1.25, vjust=0.3, size=4)
     
     # f.tx.out --------------------------------------------
@@ -224,9 +277,9 @@ retreatment patients, 2007–2013")
       
       melt(id=1) %>%
       
-      ggplot(aes(year, value, fill=variable)) + geom_bar(stat="identity", position="stack") + theme_bw2() + scale_fill_brewer(type="qual", palette=6) + scale_x_continuous("", limits=c(2006.5, 2011.5)) + scale_y_continuous("Percent of cohort") + coord_cartesian(ylim=c(0,100)) + guides(fill = guide_legend(reverse = TRUE)) + ggtitle("Trend of treatment outcome 
-expressed as a proportion of 
-enrolled MDR-TB cases, 2007–2011")
+#       if(all(is.na(value))) mutate(, value = 0) %>%
+      
+      ggplot(aes(year, value, fill=variable)) + geom_bar(stat="identity", position="stack") + theme_bw2() + scale_fill_brewer(type="qual", palette=6) + scale_x_continuous("", limits=c(2006.5, 2011.5)) + scale_y_continuous("Percent of cohort") + coord_cartesian(ylim=c(0,100)) + guides(fill = guide_legend(reverse = TRUE)) + ggtitle("Treatment outcomes")
     
     # f.expend ------------------------------------------------------
     plot4 <- dta1() %>% # dta2 <- dta1 %>%
@@ -246,20 +299,10 @@ enrolled MDR-TB cases, 2007–2011")
       ) %>%
       
       ggplot(aes(year, exp_pmdt)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_x_continuous("") + scale_y_continuous("US$ (thousands)") + theme_bw2() + expand_limits(y=0) + ggtitle(
-"Expenditure on MDR-TB, 
-2007–2013")
-    
+"Expenditure on MDR-TB")
     
     
 
-    
-    
-    
-#     f.expend <- ggplot(tfc, aes(year, exp_pmdt)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + facet_wrap(~country, scales="free_y") + theme_report() + scale_x_continuous("", breaks=seq(min(tfc$year), max(tfc$year),2)) + scale_y_continuous("US$ (thousands)") + guides(fill = guide_legend(reverse = TRUE)) + theme(legend.position = "none")
-      
-#     plot1
-# plot2
-# plot3
 #     dev.off()
 #     arrange_ggplot2(plot1, plot2, plot3, ncol=2) 
 grid.arrange(plot1, plot2, plot3, plot4, ncol=2)

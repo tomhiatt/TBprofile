@@ -47,13 +47,17 @@ shinyUI(fluidPage(
     # Show plots
     mainPanel(
       tabsetPanel(id = "active", type = "tabs",
+                  
+#                   tabPanel("test", htmlOutput("view")),
+                  
+                  
                   tabPanel("MDR-TB profile",
                            plotOutput("profileplots", 
                                       width = "auto", 
                                       height = "800px")
                            
                   ),
-                  tabPanel("MDR-TB comparison", verbatimTextOutput("test"))
+                  tabPanel("MDR-TB comparison", htmlOutput("compareplot"))
       )
     )
     

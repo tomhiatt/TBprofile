@@ -256,7 +256,7 @@ shinyServer(function(input, output, session) {
   # Compare plot -------------------------------------------------
   output$compareplot <- renderGvis({
     
-    # calculate vars first
+    # calculate vars to be added together first before aggregating (ie remove rows with NA denominator.)
     
     dta6 <- dta1() %>% # dta6 <- dta1 %>%
 #       filter(area %in% input$a2select) %>%
@@ -276,22 +276,22 @@ shinyServer(function(input, output, session) {
       mutate(mdr_succ = ifelse(year>=2011, mdr_succ, rowSumsNA(cbind(mdr_cur, mdr_cmplt)))
       ) %>%
       mutate(exp_pmdt = rowSumsNA(cbind(exp_sld, exp_mdrmgt))
-      ) %>%
+      ) # %>%
       
-      mutate(dstx_pct = dstx.nmr / dstx.dmr * 100, 
-             mdrr_pct = mdrr.nmr / mdrr.dmr * 100,
-             
-             `Cases confirmed` = as.integer(rrconf), 
-             `Patients enrolled on treatment` = as.integer(enrolled),
-             
-             Success = mdr_succ / (mdr_coh) * 100,
-             Died = (mdr_died) / (mdr_coh) * 100,
-             Failed = (mdr_fail) / (mdr_coh) * 100,
-             `Lost to follow-up` = (mdr_def) / (mdr_coh) * 100,
-             `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_def))) / (mdr_coh) * 100,
-             
-             exp_pmdt = (exp_pmdt) / 1000
-      )
+#       mutate(dstx_pct = dstx.nmr / dstx.dmr * 100, 
+#              mdrr_pct = mdrr.nmr / mdrr.dmr * 100,
+#              
+#              `Cases confirmed` = as.integer(rrconf), 
+#              `Patients enrolled on treatment` = as.integer(enrolled),
+#              
+#              Success = mdr_succ / (mdr_coh) * 100,
+#              Died = (mdr_died) / (mdr_coh) * 100,
+#              Failed = (mdr_fail) / (mdr_coh) * 100,
+#              `Lost to follow-up` = (mdr_def) / (mdr_coh) * 100,
+#              `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_def))) / (mdr_coh) * 100,
+#              
+#              exp_pmdt = (exp_pmdt) / 1000
+#       )
       
     # reshape the data so admin1 and admin0 aggregates are added as rows.
     
@@ -322,7 +322,6 @@ shinyServer(function(input, output, session) {
 {"sizeOption":"_UNISIZE","time":"2013","dimensions":{"iconDimensions":["dim0"]},"yAxisOption":"3","yZoomedDataMin":0,"orderedByY":false,"yLambda":1,"iconKeySettings":[],"uniColorForNonSelected":false,"xAxisOption":"_TIME","showTrails":false,"duration":{"timeUnit":"Y","multiplier":1},"xZoomedIn":false,"iconType":"LINE","xLambda":1,"colorOption":"_UNIQUE_COLOR","nonSelectedAlpha":0.4,"yZoomedDataMax":130,"orderedByX":false,"yZoomedIn":false,"xZoomedDataMax":1356998400000,"playDuration":15000,"xZoomedDataMin":788918400000}    
     '
     
-    
     # calculate all the MDR indicators
     
     dtb %>% 
@@ -345,28 +344,28 @@ shinyServer(function(input, output, session) {
 #       mutate(exp_pmdt = rowSumsNA(cbind(exp_sld, exp_mdrmgt))
 #       ) %>%
 #       
-#       mutate(dstx_pct = dstx.nmr / dstx.dmr * 100, 
-#              mdrr_pct = mdrr.nmr / mdrr.dmr * 100,
-#              
-#              `Cases confirmed` = as.integer(rrconf), 
-#              `Patients enrolled on treatment` = as.integer(enrolled),
-#              
-#              Success = mdr_succ / (mdr_coh) * 100,
-#              Died = (mdr_died) / (mdr_coh) * 100,
-#              Failed = (mdr_fail) / (mdr_coh) * 100,
-#              `Lost to follow-up` = (mdr_def) / (mdr_coh) * 100,
-#              `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_def))) / (mdr_coh) * 100,
-#              
-#              exp_pmdt = (exp_pmdt) / 1000
-#       ) %>%
+      mutate(dstx_pct = dstx.nmr / dstx.dmr * 100, 
+             mdrr_pct = mdrr.nmr / mdrr.dmr * 100,
+             
+             `Cases confirmed` = as.integer(rrconf), 
+             `Patients enrolled on treatment` = as.integer(enrolled),
+             
+             Success = mdr_succ / (mdr_coh) * 100,
+             Died = (mdr_died) / (mdr_coh) * 100,
+             Failed = (mdr_fail) / (mdr_coh) * 100,
+             `Lost to follow-up` = (mdr_def) / (mdr_coh) * 100,
+             `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_def))) / (mdr_coh) * 100,
+             
+             exp_pmdt = (exp_pmdt) / 1000
+      ) %>%
       
       # Make a big google bubble chart with the data and these indicators
       
       select(Area=area, Year=year, `DST among pulmonary cases (%)`=dstx_pct, `MDR-TB or RR-TB among tested (%)`=mdrr_pct, `Confirmed MDR/RR-TB Cases`=`Cases confirmed`, `Patients enrolled on MDR-TB treatment`=`Patients enrolled on treatment`, `Treatment success (%)`=Success, `Died (%)`=Died, `Failed (%)`=Failed, `Lost to follow-up (%)`=`Lost to follow-up`, `Not evaluated (%)`=`Not evaluated`, `Expenditure on PMDT (thousands)`=exp_pmdt) %>%
       
-      gvisMotionChart(idvar="Area", timevar="Year", options=list(state=prestate))  # %>%
+      gvisMotionChart(idvar="Area", timevar="Year", options=list(state=prestate)) #  %>%
     
-    #       plot()
+#           plot()
     
   })
   

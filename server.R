@@ -264,11 +264,11 @@ shinyServer(function(input, output, session) {
       mutate(dstx = rowSumsNA(cbind(dst_rlt_ret, xpert_ret)),
              mdrr = rowSumsNA(cbind(mdr_ret, dr_r_nh_ret, xpert_dr_r_ret)),
              
-             dstx.nmr = ifelse(is.na(c_ret), NA, dstx),
-             dstx.dmr = ifelse(is.na(dstx), NA, c_ret),
+             dstx.nmr = ifelse(is.na(c_ret) | dstx > c_ret, NA, dstx),
+             dstx.dmr = ifelse(is.na(dstx) | dstx > c_ret, NA, c_ret),
              
-             mdrr.nmr = ifelse(is.na(dstx), NA, mdrr),
-             mdrr.dmr = ifelse(is.na(mdrr), NA, dstx)
+             mdrr.nmr = ifelse(is.na(dstx) | mdrr > dstx, NA, mdrr),
+             mdrr.dmr = ifelse(is.na(mdrr) | mdrr > dstx, NA, dstx)
       ) %>%
       mutate(rrconf = rowSumsNA(cbind(mdr, rapid_dx_dr_r)),
              enrolled = rowSumsNA(cbind(conf_mdr_tx, unconf_mdr_tx))

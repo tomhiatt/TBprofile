@@ -3,6 +3,7 @@
 # Tom Hiatt
 # MDR-TB tab of TB profile
 # Updated: 26 Sep 2014
+# Box 4 page 42
 ###########################
 
 # library(shiny)
@@ -48,7 +49,7 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel(id = "active", type = "tabs",
                   
-#                   tabPanel("test", htmlOutput("view")),
+                  #                   tabPanel("test", htmlOutput("view")),
                   
                   
                   tabPanel("MDR-TB profile",
@@ -57,7 +58,12 @@ shinyUI(fluidPage(
                                       height = "800px")
                            
                   ),
-                  tabPanel("MDR-TB comparison", htmlOutput("compareplot"))
+                  tabPanel("MDR-TB comparison", htmlOutput("compareplot")),
+                  tabPanel("UUTBD", 
+                           plotOutput("violet1"),
+                           plotOutput("violet2"),
+                           plotOutput("violet3", height="500px"),
+                           plotOutput("violet4", height="600px"))
       )
     )
     

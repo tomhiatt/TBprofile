@@ -1,7 +1,7 @@
 ###########################
 # USER INTERFACE
 # Tom Hiatt
-# MDR-TB tab of TB profile
+# MDR-TB and other tabs of TB profile
 # Updated: 26 Sep 2014
 # Box 4 page 42
 ###########################

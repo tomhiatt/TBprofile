@@ -69,7 +69,7 @@ if(FALSE){
                 # For violet tab
                 new_labconf, new_sp, e_pop_num)
   
-  aga <- merge(subset(tb, year > 1999, select=c("iso3", "country", "year", "g_whoregion", "g_hbc22", "newrel_m04", "newrel_m514", "newrel_m014", "newrel_m1524", "newrel_m2534", "newrel_m3544", "newrel_m4554", "newrel_m5564", "newrel_m65", "newrel_mu", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f1524",  "newrel_f2534", "newrel_f3544", "newrel_f4554", "newrel_f5564", "newrel_f65", "newrel_fu",
+  aga <- merge(subset(tb, year > 1999, select=c("iso3", "country", "year", "g_whoregion", "newrel_m04", "newrel_m514", "newrel_m014", "newrel_m1524", "newrel_m2534", "newrel_m3544", "newrel_m4554", "newrel_m5564", "newrel_m65", "newrel_mu", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f1524",  "newrel_f2534", "newrel_f3544", "newrel_f4554", "newrel_f5564", "newrel_f65", "newrel_fu",
                                                 "new_sp_m04", "new_sp_m514", "new_sp_m014", "new_sp_m1524", "new_sp_m2534", "new_sp_m3544", "new_sp_m4554", "new_sp_m5564", "new_sp_m65", "new_sp_mu", "new_sp_f04", "new_sp_f514", "new_sp_f014", "new_sp_f1524",  "new_sp_f2534", "new_sp_f3544", "new_sp_f4554", "new_sp_f5564", "new_sp_f65", "new_sp_fu",
                                                 "new_sn_m04", "new_sn_m514", "new_sn_m014", "new_sn_m1524", "new_sn_m2534", "new_sn_m3544", "new_sn_m4554", "new_sn_m5564", "new_sn_m65", "new_sn_mu", "new_sn_f04", "new_sn_f514", "new_sn_f014", "new_sn_f1524",  "new_sn_f2534", "new_sn_f3544", "new_sn_f4554", "new_sn_f5564", "new_sn_f65", "new_sn_fu", 
                                                 "new_ep_m04", "new_ep_m514", "new_ep_m014", "new_ep_m1524", "new_ep_m2534", "new_ep_m3544", "new_ep_m4554", "new_ep_m5564", "new_ep_m65", "new_ep_mu", "new_ep_f04", "new_ep_f514", "new_ep_f014", "new_ep_f1524",  "new_ep_f2534", "new_ep_f3544", "new_ep_f4554", "new_ep_f5564", "new_ep_f65", "new_ep_fu")), subset(p, year>1999, select=c("iso3", "country", "year", "e_pop_m04", "e_pop_m514", "e_pop_m014", "e_pop_m1524", "e_pop_m2534", "e_pop_m3544", "e_pop_m4554", "e_pop_m5564", "e_pop_m65", "e_pop_f04", "e_pop_f514", "e_pop_f014", "e_pop_f1524", "e_pop_f2534", "e_pop_f3544", "e_pop_f4554", "e_pop_f5564", "e_pop_f65")))
@@ -360,7 +360,7 @@ shinyServer(function(input, output, session) {
       filter(year >= 2013 - 5, admin2code %in% input$a2select | admin1 %in% input$a2select | admin0 %in% input$a2select
       ) %>%
       
-      mutate(n.labconf = rowSumsNA(cbind(new_labconf, new_sp))
+      mutate(n.labconf = ifelse(is.na(new_labconf), new_sp, new_labconf)
       ) %>%
       
       group_by(year) %>%
@@ -445,7 +445,7 @@ shinyServer(function(input, output, session) {
              Age=factor(age, c("014", "1524", "2534", "3544", "4554", "5564", "65"), c(" 0–14", "15–24", "25–34", "35–44", "45–54", "55–64", "\u2265 65"))
       ) 
     
-    ggplot(dta6, aes(year, newrel_100k, color=Age)) + geom_point(size=.9) + geom_line(size=1.2) + facet_wrap(~Sex, scales="free_y") + scale_color_brewer(type="seq", palette=1, labels=levels(dta6$Age)) + xlab("") + scale_y_log10("Cases per 100 000 (log scale)") + guides(color = guide_legend(reverse = TRUE)) + theme_bw2() + theme(legend.position = "right") +  expand_limits(y=0) + ggtitle("Case notification rates per 100 000 by age and sex, 2013")
+    ggplot(dta6, aes(year, newrel_100k, color=Age)) + geom_point(size=.9) + geom_line(size=1.2) + facet_wrap(~Sex, scales="free_y") + scale_color_brewer(type="seq", palette=1, labels=levels(dta6$Age), limits=c(1:2, levels(dta6$Age)), breaks=levels(dta6$Age)) + xlab("") + scale_y_log10("Cases per 100 000 (log scale)") + guides(color = guide_legend(reverse = TRUE)) + theme_bw2() + theme(legend.position = "right") +  expand_limits(y=0) + ggtitle("Case notification rates per 100 000 by age and sex, 2013")
     
     
     

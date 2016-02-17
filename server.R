@@ -62,9 +62,10 @@ if(FALSE){
                 mdr_new,mdr_ret,mdr_unk,
                 xpert_new, xpert_ret, xpert_unk, 
                 xpert_dr_r_new, xpert_dr_r_ret, xpert_dr_r_unk,
-                rapid_dx_dr_r, conf_mdr_tx, unconf_mdr_tx,
+                rapid_dx_dr_r, conf_rrmdr, conf_mdr_tx, unconf_mdr_tx,
+                conf_rrmdr_tx, unconf_rrmdr_tx,
                 mdr_coh, mdr_cur, mdr_cmplt, mdr_died, 
-                mdr_fail, mdr_def, mdr_succ,
+                mdr_fail, mdr_lost, mdr_succ,
                 exp_sld, exp_mdrmgt,
                 # For violet tab
                 new_labconf, new_sp, e_pop_num)
@@ -194,11 +195,11 @@ shinyServer(function(input, output, session) {
       ) %>%
       
       select(admin2, admin2code, admin1, year, 
-             mdr, rapid_dx_dr_r, conf_mdr_tx, unconf_mdr_tx
+             mdr, conf_rrmdr, rapid_dx_dr_r, conf_mdr_tx, unconf_mdr_tx, conf_rrmdr_tx, unconf_rrmdr_tx
       ) %>%
       
-      mutate(rrconf = rowSumsNA(cbind(mdr, rapid_dx_dr_r)),
-             enrolled = rowSumsNA(cbind(conf_mdr_tx, unconf_mdr_tx))
+      mutate(rrconf = ifelse(year < 2014, rowSumsNA(cbind(mdr, rapid_dx_dr_r)), conf_rrmdr),
+             enrolled = rowSumsNA(cbind(conf_mdr_tx, unconf_mdr_tx, conf_rrmdr_tx, unconf_rrmdr_tx))
       ) %>%
       
       group_by(year) %>%
@@ -220,7 +221,7 @@ shinyServer(function(input, output, session) {
       ) %>%
       
       select(admin2, admin2code, admin1, year, 
-             mdr_coh, mdr_cur, mdr_cmplt, mdr_died, mdr_fail, mdr_def, mdr_succ
+             mdr_coh, mdr_cur, mdr_cmplt, mdr_died, mdr_fail, mdr_lost, mdr_succ
       ) %>%
       
       mutate(mdr_succ = ifelse(year>=2011, mdr_succ, rowSumsNA(cbind(mdr_cur, mdr_cmplt)))
@@ -231,8 +232,8 @@ shinyServer(function(input, output, session) {
       summarize(Success = sum0(mdr_succ) / sum0(mdr_coh) * 100,
                 Died = sum0(mdr_died) / sum0(mdr_coh) * 100,
                 Failed = sum0(mdr_fail) / sum0(mdr_coh) * 100,
-                `Lost to follow-up` = sum0(mdr_def) / sum0(mdr_coh) * 100,
-                `Not evaluated` = (sum0(mdr_coh) - sum0(c(mdr_succ, mdr_died, mdr_fail, mdr_def))) / sum0(mdr_coh) * 100
+                `Lost to follow-up` = sum0(mdr_lost) / sum0(mdr_coh) * 100,
+                `Not evaluated` = (sum0(mdr_coh) - sum0(c(mdr_succ, mdr_died, mdr_fail, mdr_lost))) / sum0(mdr_coh) * 100
       ) %>%
       
       as.data.frame() %>%
@@ -334,8 +335,8 @@ shinyServer(function(input, output, session) {
              Success = mdr_succ / (mdr_coh) * 100,
              Died = (mdr_died) / (mdr_coh) * 100,
              Failed = (mdr_fail) / (mdr_coh) * 100,
-             `Lost to follow-up` = (mdr_def) / (mdr_coh) * 100,
-             `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_def))) / (mdr_coh) * 100,
+             `Lost to follow-up` = (mdr_lost) / (mdr_coh) * 100,
+             `Not evaluated` = ((mdr_coh) - rowSumsNA(cbind(mdr_succ, mdr_died, mdr_fail, mdr_lost))) / (mdr_coh) * 100,
              
              exp_pmdt = (exp_pmdt) / 1000
       ) %>%

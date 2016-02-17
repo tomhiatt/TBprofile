@@ -185,7 +185,7 @@ shinyServer(function(input, output, session) {
       as.data.frame() %>%
       melt(id=1) %>%
       
-      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer(type="qual", palette=6, breaks=c("dstx_pct", "mdrr_pct"), labels=c(expression("% DST among pulmonary cases"^a), "% MDR-TB or RR-TB among tested")) + scale_x_continuous("") + scale_y_continuous("Percent")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle("DST coverage and MDR-TB positivity")
+      ggplot(aes(year, value, color=variable)) + geom_point(alpha=.5) + geom_line(size=1, alpha=.5) + scale_color_brewer(type="qual", palette=6, breaks=c("dstx_pct", "mdrr_pct"), labels=c(expression("% DST among retreatment cases"), "% MDR-TB or RR-TB among tested")) + scale_x_continuous("") + scale_y_continuous("Percent")+ guides(fill = guide_legend(reverse = TRUE)) + theme_bw2() + expand_limits(y=0) + ggtitle("DST coverage and MDR-TB positivity")
     
     # f.alignment ------------------------------------------------------
     

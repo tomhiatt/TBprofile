@@ -32,14 +32,12 @@ shinyUI(fluidPage(
       fileInput("filled.template", "Upload"),
       
       #       radioButtons("source", "Which data would you like to use?", choices = list(`Original data`="orig", `Uploaded data`="uploaded")),
+      
+      a("Feedback welcome!", href="https://docs.google.com/forms/d/117_mQtABIm0qGE2IJuPaN4V6hMEJP0zkbLLCXS1ahyc/viewform", title="Please send any comments or suggestions."),
+      br(),
       br(),
       
-      
-      br(),
-      
-      "Data source: ", a("WHO", href="http://www.who.int/tb/data", title="World Health Organization"),
-      
-      
+      "Data source: ", a("WHO", href="http://www.who.int/tb/data", title="World Health Organization"),   
       br(),
       br()
       
